@@ -356,3 +356,6 @@ function criarHashSenha(senha, salt) {
     const hashSenha = crypto.createHash('sha256').update(senhaSalt).digest('hex');   
     return hashSenha; 
 }
+
+
+// teste
