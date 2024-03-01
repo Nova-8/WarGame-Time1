@@ -322,24 +322,22 @@ app.get('/vulnerabilidades/novafiltragem/:nome', (request, response) => {
 
 app.get('/executeCat/:filename', (req, res) => {
     const filename = req.params.filename;
-    const command = `/usr/bin/cat ${filename}`;
 
-    exec(command, (error, stdout, stderr) => {
+    if (!/^[a-zA-Z0-9-_.]+$/.test(filename)) {
+        return res.status(400).json({ success: false, message: 'Nome de arquivo inválido' });
+    }
+
+    const safePath = `/caminho/seguro/para/arquivos/${filename}`;
+
+    fs.readFile(safePath, 'utf8', (error, data) => {
         if (error) {
-            console.error(`Erro ao executar o comando: ${error.message}`);
-            return res.status(500).json({ success: false, message: 'Erro ao executar o comando' });
+            console.error(`Erro ao ler o arquivo: ${error.message}`);
+            return res.status(500).json({ success: false, message: 'Erro ao ler o arquivo' });
         }
 
-        if (stderr) {
-            console.error(`Erro no STDERR: ${stderr}`);
-            return res.status(500).json({ success: false, message: 'Erro no STDERR do comando' });
-        }
-
-        console.log(`Comando executado com sucesso: ${stdout}`);
-        res.json({ success: true, output: stdout });
+        res.json({ success: true, output: data });
     });
 });
-
               
 app.listen(port, () => {
     console.log(`Servidor rodando em http://localhost:${port}`);
@@ -356,6 +354,5 @@ function criarHashSenha(senha, salt) {
     const hashSenha = crypto.createHash('sha256').update(senhaSalt).digest('hex');   
     return hashSenha; 
 }
-
 
 // teste
