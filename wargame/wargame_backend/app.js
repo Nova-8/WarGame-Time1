@@ -122,24 +122,23 @@ app.get('/vulnerabilidades', (req, res) => {
         return res.status(400).json({ success: false, message: 'O parâmetro "nome" é obrigatório para a filtragem.' });
     }
 
-    const query = 'SELECT * FROM tbl_vulnerabilidades WHERE nome LIKE ?';
-    const searchTerm = `%${nome}%`;
-
-    db.query(query, [searchTerm], (err, result) => {
+    const sql = 'SELECT * FROM users WHERE username = ?';
+    const values = [username]; // Suponha que 'username' seja a entrada do usuário
+    
+    db.execute(sql, values, (err, result) => {
         if (err) {
-            console.error('Erro ao tentar retornar os dados:', err);
-            return res.status(500).json({ success: false, message: 'Erro na busca pelos dados na tabela de vulnerabilidades' });
+            console.error('Erro no registro:', err);
+            return res.status(500).json({ success: false, message: 'Erro no registro' });
         }
-
-        if (result.length > 0) {
-            console.log('Dados de tabela de vulnerabilidades retornados!');
-            return res.json({ success: true, userInfo: result });
-        } else {
-            console.log('Dados da tabela de vulnerabilidades não encontrados');
-            return res.json({ success: false, message: 'Dados da tabela de vulnerabilidades não encontrados' });
+    
+        if (result && result.length > 0) {
+            console.log('Usuário já existe');
+            return res.status(400).json({ success: false, message: 'Usuário já existe' });
         }
+    
+        console.log('Usuário registrado com sucesso');
+        res.json({ success: true, message: 'Usuário registrado com sucesso' });
     });
-});
 
 app.post('/vulnerabilidades', (req, res) => {
     const { nome, descricao, link } = req.body;
